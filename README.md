@@ -3,4 +3,4 @@ google sign in method following their instructions
 
 ## Install
 
-cordova plugin add https://git-wip-us.apache.org/repos/asf/cordova-plugin-device.git
+cordova plugin add https://github.com/jliddev/cordova-google-signin.git --variable SERVER_CLIENT_ID="yourserverclientid"
