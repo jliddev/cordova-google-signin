@@ -21,3 +21,15 @@ Replace `yourserverclientid` with the id that was generated for you on the googl
 
 ### Android
 Replace `src/android/google-services.json` with the one you generated from the portal
+
+## Usage
+
+In your app you can just call 
+
+```
+GoogleSignin.login({}, function(account){
+   console.log('success') 
+}, function(err){
+    console.error(err);
+});
+```
