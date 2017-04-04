@@ -3,6 +3,10 @@ google sign in method following their instructions
 
 ## Setup
 
+### All
+
+Modify your `config.xml` file's `<widget>` tag's id property to match the one you setup in for your config file `<widget id="com.myname.myapp" ...` 
+
 ### Android
 
 Follow this [guide](https://developers.google.com/identity/sign-in/android/start) to get all the required credentials setup. This plugin requires both the config file, and the server client id.
