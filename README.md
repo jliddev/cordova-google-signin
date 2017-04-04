@@ -15,16 +15,23 @@ Follow this [guide](https://developers.google.com/identity/sign-in/android/start
 
 ## Install
 
-Replace `yourserverclientid` with the id that was generated for you on the google credentials page.
-
-`cordova plugin add https://github.com/jliddev/cordova-google-signin.git --variable SERVER_CLIENT_ID="yourserverclientid"`
+`cordova plugin add https://github.com/jliddev/cordova-google-signin.git`
 
 ### Android
 Replace `src/android/google-services.json` with the one you generated from the portal
 
 ## Usage
 
-In your app you can just call 
+setServerClientId
+
+```
+onDeviceReady: function() {
+     this.receivedEvent('deviceready');
+     GoogleSignin.setServerClientId('myServerClientId')
+ }
+ ```
+ 
+login
 
 ```
 GoogleSignin.login({}, function(account){
