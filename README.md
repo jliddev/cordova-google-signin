@@ -1,5 +1,5 @@
 # cordova-google-signin
-google sign in method following their instructions
+Google sign in method following their instructions
 
 ## Setup
 
@@ -15,7 +15,9 @@ Follow this [guide](https://developers.google.com/identity/sign-in/android/start
 
 ## Install
 
+Replace `yourserverclientid` with the id that was generated for you on the google credentials page.
+
 `cordova plugin add https://github.com/jliddev/cordova-google-signin.git --variable SERVER_CLIENT_ID="yourserverclientid"`
 
 ### Android
-replace `src/android/google-services.json` with the one you generated from the portal
+Replace `src/android/google-services.json` with the one you generated from the portal
