@@ -21,11 +21,58 @@
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.GET_ACCOUNTS" />
             <uses-permission android:name="android.permission.USE_CREDENTIALS" />
-        </config-file>
+        </config-file>	
 
         <source-file src="src/android/GoogleSignin.java" target-dir="src/com/jliddev/plugins"/>
         <source-file src="src/android/google-services.json" target-dir="app/"/>
     </platform>
     <platform name="ios">
+
+    	<config-file target="config.xml" parent="/*">
+	      <feature name="GoogleSignin">
+	        <param name="ios-package" value="GoogleSignin"/>
+	        <param name="onload" value="true" />
+	      </feature>
+	      <access origin="https://accounts.google.com/*" />
+	    </config-file>
+	    
+        <preference name="REVERSED_CLIENT_ID" />
+
+        <!-- this block gets changed by a hook, dont fiddle with it -->
+        <config-file target="*-Info.plist" parent="CFBundleURLTypes">
+	      <array>
+	        <dict>
+	            <key>CFBundleTypeRole</key>
+	            <string>Editor</string>
+	            <key>CFBundleURLName</key>
+	            <string>REVERSED_CLIENT_ID</string>
+	            <key>CFBundleURLSchemes</key>
+	            <array>
+	                <string>$REVERSED_CLIENT_ID</string>
+	            </array>
+	        </dict>
+	      </array>
+	    </config-file>
+
+	    <header-file src="src/ios/GoogleSignin.h"/>
+    	<source-file src="src/ios/GoogleSignin.m"/>
+
+        <!-- required config file -->
+		<source-file src="src/ios/GoogleService-Info.plist" />
+
+		<!-- sdk -->
+		<framework src="src/ios/sdk/GoogleAppUtilities.framework" custom="true" />
+		<framework src="src/ios/sdk/GoogleSignIn.framework" custom="true" />
+		<framework src="src/ios/sdk/GoogleSignInDependencies.framework" custom="true" />
+		<framework src="src/ios/sdk/GoogleSymbolUtilities.framework" custom="true" />
+
+		<resource-file src="src/ios/sdk/GoogleSignIn.bundle" />
+
+		<framework src="SafariServices.framework" weak="true" />
+		<framework src="SystemConfiguration.framework" weak="true" />
+
+		<!-- hooks -->
+		<!-- <hook type="before_prepare" src="hooks/ios/bindReverseClientId.js"/> -->
+
     </platform>
 </plugin>
