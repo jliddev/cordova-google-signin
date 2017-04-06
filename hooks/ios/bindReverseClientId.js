@@ -21,7 +21,7 @@ function getReveresedClientId(plistPath) {
 		});
 	})
 }
-
+	
 function updatePluginXml( reversedClientId, xmlPath ){
 	return new Promise((resolve,reject)=>{
 		fs.readFile(xmlPath, 'utf8', (err, data) => {
@@ -56,7 +56,7 @@ module.exports = function(context) {
     var deferral = new Q.defer();
 
     let plistPath = path.join(cwd, 'src', 'ios', 'GoogleService-Info.plist')
-    let xmlPath = path.join(projectDir, 'platforms', 'ios', '')
+    let xmlPath = path.join(cwd, 'plugin.xml')
 
     console.log(plistPath)
 

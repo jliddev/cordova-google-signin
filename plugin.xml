@@ -35,8 +35,8 @@
 	      </feature>
 	      <access origin="https://accounts.google.com/*" />
 	    </config-file>
-	    
-        <preference name="REVERSED_CLIENT_ID" />
+
+        <!-- <preference name="REVERSED_CLIENT_ID" /> -->
 
         <!-- this block gets changed by a hook, dont fiddle with it -->
         <config-file target="*-Info.plist" parent="CFBundleURLTypes">
@@ -48,7 +48,7 @@
 	            <string>REVERSED_CLIENT_ID</string>
 	            <key>CFBundleURLSchemes</key>
 	            <array>
-	                <string>$REVERSED_CLIENT_ID</string>
+	                <string>$REPLACE$</string>
 	            </array>
 	        </dict>
 	      </array>
@@ -73,6 +73,7 @@
 
 		<!-- hooks -->
 		<!-- <hook type="before_prepare" src="hooks/ios/bindReverseClientId.js"/> -->
+		<hook type="before_platform_add" src="hooks/ios/bindReverseClientId.js"/>
 
     </platform>
 </plugin>
