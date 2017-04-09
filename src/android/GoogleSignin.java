@@ -1,6 +1,7 @@
 package com.jliddev.plugins;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.auth.api.Auth;
@@ -27,6 +28,9 @@ public class GoogleSignin extends CordovaPlugin
 
     private static final String ACTION_LOGIN = "glogin";
     private static final String ACTION_SET_SERVER_CLIENT_ID = "setServerClientId";
+    private static final String ACTION_SILENT_LOGIN = "silentLogin";
+    private static final String ACTION_LOGOUT = "logout";
+    private static final String ACTION_REVOKE_ACCESS = "revoke";
 
     private GoogleApiClient mGoogleApiClient;
 
@@ -46,8 +50,12 @@ public class GoogleSignin extends CordovaPlugin
 
         if (action.equals(ACTION_LOGIN)) {
             login(callbackContext);
+        } else if( action.equals(ACTION_LOGOUT)){
+            logout(callbackContext);
         } else if (action.equals(ACTION_SET_SERVER_CLIENT_ID)) {
             setServerClientId(args.optString(0), callbackContext);
+        } else if( action.equals(ACTION_SILENT_LOGIN) ){
+            silentLogin(callbackContext);
         } else {
             Log.i(TAG, "This action doesn't exist");
             return false;
@@ -56,7 +64,7 @@ public class GoogleSignin extends CordovaPlugin
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         // An unresolvable error has occurred and Google APIs (including Sign-In) will not
         // be available.
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
@@ -100,8 +108,15 @@ public class GoogleSignin extends CordovaPlugin
                 mCurrentLoginCallback.success(responseJson);
             }
         } else {
-            //TODO add better logging
-            mCurrentLoginCallback.error("login failed");
+            Status status = result.getStatus();
+            JSONObject response = new JSONObject();
+            try{
+                response.put("message", status.getStatusMessage());
+                response.put("code", status.getStatusCode());
+                mCurrentLoginCallback.error(response);
+            }catch(JSONException ex){
+                mCurrentLoginCallback.error( ex.toString() );
+            }
         }
     }
 
@@ -114,17 +129,7 @@ public class GoogleSignin extends CordovaPlugin
         }
     }
 
-    private void login(CallbackContext callbackContext) {
-        if (mCurrentLoginCallback != null) {
-            callbackContext.error("a login is currently in progress");
-            return;
-        }
-
-        //store the callback for after the activity finishes
-        mCurrentLoginCallback = callbackContext;
-        //register for activity callback events
-        cordova.setActivityResultCallback(this);
-
+    private void createGoogleApiClient(){
         //create builder we can manipulate
         GoogleSignInOptions.Builder optionsBuilder = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -148,9 +153,71 @@ public class GoogleSignin extends CordovaPlugin
                 .addOnConnectionFailedListener(this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
+    }
+
+    private void login(CallbackContext callbackContext) {
+        if (mCurrentLoginCallback != null) {
+            callbackContext.error("a login is currently in progress");
+            return;
+        }
+
+        //store the callback for after the activity finishes
+        mCurrentLoginCallback = callbackContext;
+        //register for activity callback events
+        cordova.setActivityResultCallback(this);
+
+        createGoogleApiClient();
 
         //start the signin activity
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         cordova.getActivity().startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    private void logout(final CallbackContext callbackContext){
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+            @Override
+            public void onResult(@NonNull Status status) {
+                JSONObject response = new JSONObject();
+                try{
+                    response.put("message", status.getStatusMessage());
+                    response.put("code", status.getStatusCode());
+
+                    if( status.isSuccess() ){
+                        callbackContext.success(response);
+                    } else {
+                        callbackContext.error(response);
+                    }
+                }catch(JSONException ex){
+                    callbackContext.error( ex.toString() );
+                }
+            }
+        });
+    }
+
+    private void silentLogin(CallbackContext callbackContext){
+        if (mCurrentLoginCallback != null) {
+            callbackContext.error("a login is currently in progress");
+            return;
+        }
+
+        mCurrentLoginCallback = callbackContext;
+
+        createGoogleApiClient();
+
+        OptionalPendingResult<GoogleSignInResult> pendingResult = Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
+
+        if (pendingResult.isDone()) {
+            // There's immediate result available.
+            handleSignInResult(pendingResult.get());
+        } else {
+            // There's no immediate result ready, displays some progress indicator and waits for the
+            // async callback.
+            pendingResult.setResultCallback(new ResultCallback<GoogleSignInResult>() {
+                @Override
+                public void onResult(@NonNull GoogleSignInResult result) {
+                    handleSignInResult(result);
+                }
+            });
+        }
     }
 }
